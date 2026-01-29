@@ -1,0 +1,49 @@
+name: 用 Wine 在 Linux runner 上运行 Windows exe（根目录文件）
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:          # 允许手动触发测试
+
+jobs:
+  run-exe:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出仓库代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Wine（使用官方 WineHQ 最新稳定版）
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo mkdir -pm755 /etc/apt/keyrings
+          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/\( (lsb_release -cs)/winehq- \)(lsb_release -cs).sources
+          sudo apt update
+          sudo apt install --install-recommends winehq-stable -y
+
+      - name: 初始化 Wine 环境（避免首次运行弹窗或错误）
+        run: wineboot --init || true
+
+      - name: 确保 exe 可执行权限
+        run: chmod +x ./boot.exe   # ← 这里改成你的真实 exe 文件名
+
+      - name: 用 Wine 运行 exe（模拟拖拽文件到 exe 上）
+        run: wine ./boot.exe "./boot.img"   # ← 这里改成你的输入文件名，例如 "./main.code" 或 "./file.txt"
+        # 如果 exe 支持额外参数（如 -o 输出路径），可以加在后面：
+        # wine ./compiler.exe "./source.src" -o "./output/result.bin"
+
+      - name: 查看 exe 处理后生成的文件（调试用，可删除）
+        run: ls -la . *.out *.bin *.img *.txt *.new 2>/dev/null || true
+
+      - name: 上传 exe 处理后的结果（供下载）
+        uses: actions/upload-artifact@v4
+        with:
+          name: 处理结果文件
+          path: |
+            ./*.out      # 根据 exe 实际输出文件扩展名修改
+            ./*.bin
+            ./*.img
+            ./*.txt
+            ./*.new
+          retention-days: 7   # artifact 保存 7 天

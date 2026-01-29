@@ -34,9 +34,14 @@ jobs:
       
 
     
-      - name: 用 Wine 运行 exe + 自动输入 key
+      - name: 用 Wine 运行 SKRoot(Lite) + 自动喂入所有交互输入
         run: |
-          echo "963963Aa@@\n" | wine ./boot.exe "./kernel"
+          wine ./boot.exe "./kernel" <<EOF
+          1
+          qwertyuiopasdfghjklzxcvbnmnbvcxzkljhgfdspoiuytre
+          2
+           
+          EOF
 
       - name: 查看 exe 处理后生成的文件（调试用，可删除）
         run: ls -la . *.out *.bin *.img *.txt *.new 2>/dev/null || true

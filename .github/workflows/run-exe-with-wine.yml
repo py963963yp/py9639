@@ -30,10 +30,9 @@ jobs:
       - name: 确保 exe 可执行权限
         run: chmod +x ./boot.exe   # ← 这里改成你的真实 exe 文件名
 
-      - name: 用 Wine 运行 exe（模拟拖拽文件到 exe 上）
-        run: wine ./boot.exe "./boot.img"   # ← 这里改成你的输入文件名，例如 "./main.code" 或 "./file.txt"
-        # 如果 exe 支持额外参数（如 -o 输出路径），可以加在后面：
-        # wine ./compiler.exe "./source.src" -o "./output/result.bin"
+      - name: 用 Wine 运行 exe + 自动输入 key
+        run: |
+          echo "963963Aa@@\n" | wine ./boot.exe "./boot.img"
 
       - name: 查看 exe 处理后生成的文件（调试用，可删除）
         run: ls -la . *.out *.bin *.img *.txt *.new 2>/dev/null || true

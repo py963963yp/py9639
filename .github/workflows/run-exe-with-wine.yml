@@ -13,12 +13,12 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
 
-      - name: 安装 Wine（使用官方 WineHQ 最新稳定版）
+      - name: 安装 Wine（官方推荐方式，Ubuntu 24.04）
         run: |
           sudo dpkg --add-architecture i386
           sudo mkdir -pm755 /etc/apt/keyrings
           sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/\( (lsb_release -cs)/winehq- \)(lsb_release -cs).sources
+          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources
           sudo apt update
           sudo apt install --install-recommends winehq-stable -y
 

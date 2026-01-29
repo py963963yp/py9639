@@ -29,10 +29,33 @@ jobs:
 
       - name: 确保 exe 可执行权限
         run: chmod +x ./boot.exe   # ← 这里改成你的真实 exe 文件名
+        
+      - name: 安装 Android boot.img 提取工具（magiskboot 或 unpackbootimg）
+        run: |
+          # 下载 magiskboot（简单、支持 ARM64 kernel 提取）
+          wget https://github.com/topjohnwu/Magisk/releases/download/v27.0/magiskboot_linux_x86_64.zip -O magiskboot.zip
+          unzip magiskboot.zip
+          chmod +x magiskboot
+          mv magiskboot /usr/local/bin/magiskboot  # 或放当前目录 ./magiskboot
 
+      - name: 提取 boot.img 中的 kernel 文件
+        run: |
+          # 用 magiskboot 解包 boot.img
+          ./magiskboot unpack ./boot.img
+          # 提取后，kernel 文件通常叫 kernel 或 kernel.gz
+          ls -la kernel*   # 看日志知道叫什么，通常是 kernel (纯 binary) 或 kernel.gz
+          # 如果是 kernel.gz，先解压
+          if [ -f kernel.gz ]; then
+            gunzip -k kernel.gz   # -k 保留原文件
+          fi
+          # 最终 kernel 文件应该是 kernel (或 Image)
+
+      
+
+    
       - name: 用 Wine 运行 exe + 自动输入 key
         run: |
-          echo "963963Aa@@\n" | wine ./boot.exe "./boot.img"
+          echo "963963Aa@@\n" | wine ./boot.exe "./kernel"
 
       - name: 查看 exe 处理后生成的文件（调试用，可删除）
         run: ls -la . *.out *.bin *.img *.txt *.new 2>/dev/null || true
